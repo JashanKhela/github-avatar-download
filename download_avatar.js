@@ -17,7 +17,7 @@ function getRepoContributors(repoOwner , repoName , cb) {
   };
   request(options, function(err , res , body){
      var data = JSON.parse(body)
-    console.log(data)
+
 
     cb(err, data);
   })
@@ -35,10 +35,7 @@ function cb(err,data) {
   console.log("We are so sorry, but there seems to be an error")
   return;
   }
- for(var item in data) {
-  console.log(data[item].avatar_url)
+ for(var i = 0; i < data.length; i++){
+  console.log(data[0].avatar_url)
  }
-
-
-
- }
+}
