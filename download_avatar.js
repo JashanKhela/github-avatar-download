@@ -3,7 +3,11 @@ var secrets = require('./secrets');
 var request = require('request') ;
 var fs = require('fs');
 console.log("welcome to the Github Avatar Downloader!");
-console.log(secrets)
+var repoOwner = process.argv[2]
+var repoName = process.argv[3]
+if(!repoOwner || !repoName) {
+  console.log("Sorry, please add valid arguements")
+}
 
 //declare a function to take in paramters such as name , repoName and callback function
 function getRepoContributors(repoOwner , repoName , cb) {
@@ -21,7 +25,7 @@ function getRepoContributors(repoOwner , repoName , cb) {
   })
 }
 
-getRepoContributors ("jquery" , "jquery" , function(err, result){
+getRepoContributors (repoOwner , repoName , function(err, result){
   //console.log("Errors: " , err);
   //console.log("Result: " , result);
    for(var i = 0; i < result.length; i++){
