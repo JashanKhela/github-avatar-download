@@ -1,72 +1,62 @@
-//Load the request module as well as the secrets folder
-var secrets = require('./secrets');
-var request = require('request') ;
+var request = require('request');
+var token = require('./secrets');
 var fs = require('fs');
-console.log("welcome to the Github Avatar Downloader!");
-var repoOwner = process.argv[2]
-var repoName = process.argv[3]
-if(!repoOwner || !repoName) {
-  console.log("Sorry, please add valid arguements")
+var baseurl = 'https://api.github.com/repos';
+var repoOwner = process.argv[2];
+var repoName = process.argv[2];
+if (process.argv.length !== 4){
+ console.log('Please Enter Valid arguments');
+ return ;
 }
 
-//declare a function to take in paramters such as name , repoName and callback function
-function getRepoContributors(repoOwner , repoName , cb) {
+console.log('Welcome to the GitHub Avatar Downloader!');
 
-  var options = {
-    url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
-    headers:{
-      'User-Agent': 'request',
+function getRepoContributors(repoOwner, repoName, cb) {
+ var options = {
+   url : "https://api.github.com/repos/" + repoOwner + "/" + repoName + "/contributors",
+   headers: {
+     'User-Agent':'request',
+   },
+   'auth': {'bearer': token.GITHUB_TOKEN}
+ };
 
-    }, 'auth' :{'bearer': secrets.GITHUB_TOKEN }
-  };
-  request(options, function(err , res , body){
-    var data = JSON.parse(body)
-    cb(err, data);
-  })
+ request(options, function(err, res, body) {
+
+
+   var data = JSON.parse(body);
+
+   cb(err, data);
+ });
 }
 
-getRepoContributors (repoOwner , repoName , function(err, result){
-  //console.log("Errors: " , err);
-  //console.log("Result: " , result);
-   for(var i = 0; i < result.length; i++){
+//getRepoContributors("jquery", "jquery", function(err, data){
+getRepoContributors(repoOwner, repoName, function(err, result){
+ if (err){
+   console.log(err);
+   return;
+ }
+for(var i = 0; i < result.length; i++){
   downloadImageByURL(result[i].avatar_url,'./avatars/' + result[i].login + '.jpg')
 
  }
 
-
 })
 
-function cb(err,data) {
-  if(err) {
-  console.log("We are so sorry, but there seems to be an error")
-  return;
-  }
- for(var i = 0; i < data.length; i++){
-  downloadImageByURL(data[i].avatar_url,'./avatars/' + data[i].login + '.jpg')
 
- }
-
-
-}
-
-function downloadImageByURL(url , filepath){
-
-request.get(url)
-        .on('error', function(err){
-          throw err ;
-        })
-        .on('response', function (response){
-          console.log('Response Status Code: ', response.statusMessage) ;
-          console.log("Content type : " + response.headers['content-type'] )
-
-        })
-        .pipe(fs.createWriteStream(filepath))
+function downloadImageByURL(url, filePath) {
+ // ...
+ request.get(url)               // Note 1             // Note 1
+ .on('error', function (err) {                                   // Note 2
+   throw err;
+ })
+ .on('response', function (response) {                           // Note 3
+   console.log('Response Status Code: ', response.statusMessage);
+   console.log('Response Header: ', response.headers['content-type']);
+ })
+ .on('complete', function(){
+   console.log('complete')
+ })
+ .pipe(fs.createWriteStream(filePath));
 
 
 }
-
-
-
-
-
-
